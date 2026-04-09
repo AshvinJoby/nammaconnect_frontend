@@ -33,7 +33,7 @@ function RegisterForm() {
       if (!mapContainer.current) return;
 
       mapRef.current = new mapboxgl.Map({
-        container: mapContainer.current,
+        container: mapContainer.current as HTMLElement,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [lng, lat],
         zoom: 12

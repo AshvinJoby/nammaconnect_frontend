@@ -95,7 +95,7 @@ export default function CustomerDashboard() {
       }
 
       mapRef.current = new mapboxgl.Map({
-        container: mapContainer.current,
+        container: mapContainer.current as HTMLElement,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [currentLng, currentLat],
         zoom: 14

@@ -59,7 +59,7 @@ export default function DeliveryDashboard() {
       const cLng = activeJob.cLng || 77.5946;
 
       mapRef.current = new mapboxgl.Map({
-        container: mapContainer.current,
+        container: mapContainer.current as HTMLElement,
         style: 'mapbox://styles/mapbox/navigation-day-v1',
         center: [vLng, vLat],
         zoom: 14

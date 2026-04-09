@@ -57,7 +57,7 @@ export default function VendorDashboard() {
       mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
       
       mapSettingsRef.current = new mapboxgl.Map({
-        container: mapSettingsContainer.current,
+        container: mapSettingsContainer.current as HTMLElement,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [editLng, editLat],
         zoom: 12
