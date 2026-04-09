@@ -51,7 +51,7 @@ export default function CustomerDashboard() {
     vendors.forEach(async (v: any) => {
       if (!v.lat || !v.lng || vendorAddresses[v.id]) return;
       try {
-        const res = await fetch(`https://api.mapbox.com/search/geocode/v6/reverse?longitude=${v.lng}&latitude=${v.lat}&access_token=pk.eyJ1IjoiYXNodmluLWpvYnkiLCJhIjoiY21ucWtreXNkMDF2ODJxcXlmY3g5d2RyciJ9.9I-nZY_ma-uHBKxIh0BZyQ`);
+        const res = await fetch(`https://api.mapbox.com/search/geocode/v6/reverse?longitude=${v.lng}&latitude=${v.lat}&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`);
         const data = await res.json();
         if (data.features && data.features.length > 0) {
            setVendorAddresses(prev => ({ ...prev, [v.id]: data.features[0].properties.full_address }));
@@ -75,7 +75,7 @@ export default function CustomerDashboard() {
   useEffect(() => {
     if (!trackingOrder || !mapContainer.current) return;
 
-    mapboxgl.accessToken = 'pk.eyJ1IjoiYXNodmluLWpvYnkiLCJhIjoiY21ucWtreXNkMDF2ODJxcXlmY3g5d2RyciJ9.9I-nZY_ma-uHBKxIh0BZyQ';
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 
     const vLat = trackingOrder.vLat || 12.9716;
     const vLng = trackingOrder.vLng || 77.5946;

@@ -27,7 +27,7 @@ function RegisterForm() {
   useEffect(() => {
     if (mapRef.current) return;
     
-    mapboxgl.accessToken = 'pk.eyJ1IjoiYXNodmluLWpvYnkiLCJhIjoiY21ucWtreXNkMDF2ODJxcXlmY3g5d2RyciJ9.9I-nZY_ma-uHBKxIh0BZyQ';
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
     if (!mapContainer.current) return;
 
     mapRef.current = new mapboxgl.Map({

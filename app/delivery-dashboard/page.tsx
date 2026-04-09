@@ -50,7 +50,7 @@ export default function DeliveryDashboard() {
     if (!activeJob || !mapContainer.current) return;
     
     // Hardcoded dev token identical to the ones utilized across app
-    mapboxgl.accessToken = 'pk.eyJ1IjoiYXNodmluLWpvYnkiLCJhIjoiY21ucWtreXNkMDF2ODJxcXlmY3g5d2RyciJ9.9I-nZY_ma-uHBKxIh0BZyQ';
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
     
     const vLat = activeJob.vLat || 12.9716;
     const vLng = activeJob.vLng || 77.5946;
