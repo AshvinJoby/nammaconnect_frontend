@@ -4,7 +4,7 @@ import { apiFetch } from '@/lib/api';
 import React, { useState, Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import mapboxgl from 'mapbox-gl';
+import type mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 function RegisterForm() {
@@ -27,24 +27,27 @@ function RegisterForm() {
   useEffect(() => {
     if (mapRef.current) return;
     
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
-    if (!mapContainer.current) return;
+    import('mapbox-gl').then((module) => {
+      const mapboxgl = module.default;
+      mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+      if (!mapContainer.current) return;
 
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [lng, lat],
-      zoom: 12
-    });
+      mapRef.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [lng, lat],
+        zoom: 12
+      });
 
-    markerRef.current = new mapboxgl.Marker({ color: '#f97316' })
-      .setLngLat([lng, lat])
-      .addTo(mapRef.current);
+      markerRef.current = new mapboxgl.Marker({ color: '#f97316' })
+        .setLngLat([lng, lat])
+        .addTo(mapRef.current);
 
-    mapRef.current.on('click', (e) => {
-      setLng(e.lngLat.lng);
-      setLat(e.lngLat.lat);
-      markerRef.current?.setLngLat([e.lngLat.lng, e.lngLat.lat]);
+      mapRef.current.on('click', (e) => {
+        setLng(e.lngLat.lng);
+        setLat(e.lngLat.lat);
+        markerRef.current?.setLngLat([e.lngLat.lng, e.lngLat.lat]);
+      });
     });
   }, []);
 

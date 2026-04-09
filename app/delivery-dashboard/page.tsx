@@ -3,7 +3,7 @@ import { apiFetch } from '@/lib/api';
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import mapboxgl from 'mapbox-gl';
+import type mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) => {
@@ -49,33 +49,35 @@ export default function DeliveryDashboard() {
   useEffect(() => {
     if (!activeJob || !mapContainer.current) return;
     
-    // Hardcoded dev token identical to the ones utilized across app
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
-    
-    const vLat = activeJob.vLat || 12.9716;
-    const vLng = activeJob.vLng || 77.5946;
-    const cLat = activeJob.cLat || 12.9716;
-    const cLng = activeJob.cLng || 77.5946;
+    import('mapbox-gl').then((module) => {
+      const mapboxgl = module.default;
+      mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+      
+      const vLat = activeJob.vLat || 12.9716;
+      const vLng = activeJob.vLng || 77.5946;
+      const cLat = activeJob.cLat || 12.9716;
+      const cLng = activeJob.cLng || 77.5946;
 
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/navigation-day-v1',
-      center: [vLng, vLat],
-      zoom: 14
+      mapRef.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/navigation-day-v1',
+        center: [vLng, vLat],
+        zoom: 14
+      });
+
+      mapRef.current.fitBounds([ 
+        [Math.min(vLng, cLng) - 0.01, Math.min(vLat, cLat) - 0.01], 
+        [Math.max(vLng, cLng) + 0.01, Math.max(vLat, cLat) + 0.01] 
+      ], { padding: 50 });
+
+      new mapboxgl.Marker({ color: '#ef4444' })
+        .setLngLat([vLng, vLat])
+        .addTo(mapRef.current);
+
+      new mapboxgl.Marker({ color: '#22c55e' })
+        .setLngLat([cLng, cLat])
+        .addTo(mapRef.current);
     });
-
-    mapRef.current.fitBounds([ 
-      [Math.min(vLng, cLng) - 0.01, Math.min(vLat, cLat) - 0.01], 
-      [Math.max(vLng, cLng) + 0.01, Math.max(vLat, cLat) + 0.01] 
-    ], { padding: 50 });
-
-    new mapboxgl.Marker({ color: '#ef4444' })
-      .setLngLat([vLng, vLat])
-      .addTo(mapRef.current);
-
-    new mapboxgl.Marker({ color: '#22c55e' })
-      .setLngLat([cLng, cLat])
-      .addTo(mapRef.current);
 
     return () => {
       if (mapRef.current) {

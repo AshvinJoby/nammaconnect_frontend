@@ -4,7 +4,7 @@ import { apiFetch } from '@/lib/api';
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import mapboxgl from 'mapbox-gl';
+import type mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface Vendor {
@@ -79,64 +79,66 @@ export default function CustomerDashboard() {
   useEffect(() => {
     if (!trackingOrder || !mapContainer.current) return;
 
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+    import('mapbox-gl').then((module) => {
+      const mapboxgl = module.default;
+      mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 
-    const vLat = trackingOrder.vLat || 12.9716;
-    const vLng = trackingOrder.vLng || 77.5946;
-    const cLat = trackingOrder.cLat || 12.9716;
-    const cLng = trackingOrder.cLng || 77.5946;
+      const vLat = trackingOrder.vLat || 12.9716;
+      const vLng = trackingOrder.vLng || 77.5946;
+      const cLat = trackingOrder.cLat || 12.9716;
+      const cLng = trackingOrder.cLng || 77.5946;
 
-    let currentLng = vLng;
-    let currentLat = vLat;
-    if (trackingOrder.status === 'FINISHED') {
-      currentLng = cLng; currentLat = cLat;
-    }
-
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [currentLng, currentLat],
-      zoom: 14
-    });
-
-    if (vLat !== cLat || vLng !== cLng) {
-      mapRef.current.fitBounds([
-        [Math.min(vLng, cLng) - 0.01, Math.min(vLat, cLat) - 0.01],
-        [Math.max(vLng, cLng) + 0.01, Math.max(vLat, cLat) + 0.01]
-      ], { padding: 50 });
-    }
-
-    markerRef.current = new mapboxgl.Marker({ color: '#f97316' })
-      .setLngLat([currentLng, currentLat])
-      .addTo(mapRef.current);
-
-    let animationFrame: number;
-    if (trackingOrder.status === 'DELIVERING') {
-      let progress = 0;
-      const animateMarker = () => {
-        progress += 0.002;
-        if (progress > 1) progress = 0;
-
-        const lng = vLng + (cLng - vLng) * progress;
-        const lat = vLat + (cLat - vLat) * progress;
-
-        markerRef.current?.setLngLat([lng, lat]);
-        animationFrame = requestAnimationFrame(animateMarker);
-      };
-      animateMarker();
-    } else if (trackingOrder.status === 'FINISHED') {
-      markerRef.current?.setLngLat([cLng, cLat]);
-    } else {
-      markerRef.current?.setLngLat([vLng, vLat]);
-    }
-
-    return () => {
-      if (animationFrame) cancelAnimationFrame(animationFrame);
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
+      let currentLng = vLng;
+      let currentLat = vLat;
+      if (trackingOrder.status === 'FINISHED') {
+        currentLng = cLng; currentLat = cLat;
       }
-    };
+
+      mapRef.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [currentLng, currentLat],
+        zoom: 14
+      });
+
+      if (vLat !== cLat || vLng !== cLng) {
+        mapRef.current.fitBounds([
+          [Math.min(vLng, cLng) - 0.01, Math.min(vLat, cLat) - 0.01],
+          [Math.max(vLng, cLng) + 0.01, Math.max(vLat, cLat) + 0.01]
+        ], { padding: 50 });
+      }
+
+      markerRef.current = new mapboxgl.Marker({ color: '#f97316' })
+        .setLngLat([currentLng, currentLat])
+        .addTo(mapRef.current);
+
+      let animationFrame: number;
+      if (trackingOrder.status === 'DELIVERING') {
+        let progress = 0;
+        const animateMarker = () => {
+          progress += 0.002;
+          if (progress > 1) progress = 0;
+
+          const lng = vLng + (cLng - vLng) * progress;
+          const lat = vLat + (cLat - vLat) * progress;
+
+          markerRef.current?.setLngLat([lng, lat]);
+          animationFrame = requestAnimationFrame(animateMarker);
+        };
+        animateMarker();
+      } else if (trackingOrder.status === 'FINISHED') {
+        markerRef.current?.setLngLat([cLng, cLat]);
+      } else {
+        markerRef.current?.setLngLat([vLng, vLat]);
+      }
+
+      // Cleanup needs to be handled cautiously inside async
+      const currentMap = mapRef.current;
+      return () => {
+        if (animationFrame) cancelAnimationFrame(animationFrame);
+        if (currentMap) currentMap.remove();
+      };
+    });
   }, [trackingOrder]);
 
   // Logout Handlers

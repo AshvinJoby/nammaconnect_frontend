@@ -3,7 +3,7 @@ import { apiFetch } from '@/lib/api';
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import mapboxgl from 'mapbox-gl';
+import type mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const STATUS_FLOW = ["PENDING", "PREPARING", "READY", "DELIVERING", "FINISHED"];
@@ -52,23 +52,26 @@ export default function VendorDashboard() {
     if (!isSettingsOpen || !mapSettingsContainer.current) return;
     if (mapSettingsRef.current) return;
 
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
-    
-    mapSettingsRef.current = new mapboxgl.Map({
-      container: mapSettingsContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [editLng, editLat],
-      zoom: 12
-    });
+    import('mapbox-gl').then((module) => {
+      const mapboxgl = module.default;
+      mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+      
+      mapSettingsRef.current = new mapboxgl.Map({
+        container: mapSettingsContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [editLng, editLat],
+        zoom: 12
+      });
 
-    markerSettingsRef.current = new mapboxgl.Marker({ color: '#f97316' })
-      .setLngLat([editLng, editLat])
-      .addTo(mapSettingsRef.current);
+      markerSettingsRef.current = new mapboxgl.Marker({ color: '#f97316' })
+        .setLngLat([editLng, editLat])
+        .addTo(mapSettingsRef.current);
 
-    mapSettingsRef.current.on('click', (e) => {
-      setEditLng(e.lngLat.lng);
-      setEditLat(e.lngLat.lat);
-      markerSettingsRef.current?.setLngLat([e.lngLat.lng, e.lngLat.lat]);
+      mapSettingsRef.current.on('click', (e) => {
+        setEditLng(e.lngLat.lng);
+        setEditLat(e.lngLat.lat);
+        markerSettingsRef.current?.setLngLat([e.lngLat.lng, e.lngLat.lat]);
+      });
     });
 
     return () => {
