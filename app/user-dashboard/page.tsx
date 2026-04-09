@@ -31,7 +31,7 @@ const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 
 export default function CustomerDashboard() {
   const router = useRouter();
   const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
