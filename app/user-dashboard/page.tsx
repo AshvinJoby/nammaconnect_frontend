@@ -10,6 +10,10 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 interface Vendor {
   id: string;
   name: string;
+  imageUrl?: string;
+  lat?: number;
+  lng?: number;
+  menuItems?: any[];
 }
 
 // --- Toast UI Component
